@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-
+const RateLimit=require('express-rate-limit')
 exports.isLoggedIn = (req, res, next) => {
   if (req.isAuthenticated()) {
     next();
@@ -33,3 +33,22 @@ exports.verifyToken = (req, res, next) => {
     });
   }
 };
+
+exports.apiLimiter = new RateLimit({
+  windowMs: 60 * 1000,
+  max: 1,
+  delayMs: 1000,
+  handler(req, res) {
+    res.status(this.statusCode).json({
+      code: this.statusCode,
+      message: '1분에 한 번만 요청 가능',
+    })
+  }
+});
+
+exports.deprecated = (req, res) => {
+  res.status(410).json({
+    code: 410,
+    message:'새로운 버전 나옴'
+  })
+}
